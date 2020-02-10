@@ -1,0 +1,24 @@
+{
+  "name": "homebridge-garadget-mqtt",
+  "version": "1.0.0",
+  "description": "Garadget integration for Homebridge, using MQTT",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "garadget",
+    "homebridge",
+    "mqtt",
+    "homebridge-plugin"
+  ],
+  "engines": {
+    "homebridge": ">=0.2.0",
+    "node": ">=0.12.0"
+  },
+  "author": "Levi Roberts",
+  "license": "MIT",
+  "dependencies": {
+    "mqtt": "^3.0.0"
+  }
+}
