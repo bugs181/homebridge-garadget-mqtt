@@ -6,6 +6,15 @@ const mqtt = require('mqtt')
 // Alternative Homebridge plugin to:
 // https://github.com/xNinjasx/homebridge-garadget
 
+// Support thread:
+// https://community.garadget.com/t/introducing-garadget-integration-for-homebridge-using-mqtt
+
+// Github repo:
+// https://github.com/bugs181/homebridge-garadget-mqtt
+
+// npm repo:
+// https://www.npmjs.com/package/homebridge-garadget-mqtt
+
 
 module.exports = function(homebridge) {
   Service = homebridge.hap.Service
@@ -101,7 +110,7 @@ GaradgetAccessory.prototype = {
       .getCharacteristic(Characteristic.ObstructionDetected)
       .on('get', this.obDetected.bind(this))
 
-    this.garageservice = garageService
+    this.garageService = garageService
 
     return [informationService, garageService]
   },
@@ -169,6 +178,6 @@ function updateGarageDoorState(message) {
       break
   }
 
-  this.garageservice
+  this.garageService
     .setCharacteristic(Characteristic.CurrentDoorState, this.lastGarageState)
 }
