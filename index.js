@@ -67,6 +67,7 @@ function GaradgetAccessory(client, log, config) {
 
   this.lastGarageState = Characteristic.CurrentDoorState.CLOSED
   this.lastTargetState = Characteristic.TargetDoorState.CLOSED
+  this.lastLightState = 0
 
   client.on('message', (_, data) => {
     try {
@@ -94,6 +95,8 @@ function GaradgetAccessory(client, log, config) {
 
 GaradgetAccessory.prototype = {
   getServices: function() {
+    const accessoryServices = []
+
     const informationService = new Service.AccessoryInformation()
     informationService
       .setCharacteristic(Characteristic.Manufacturer, 'Garadget')
@@ -101,6 +104,7 @@ GaradgetAccessory.prototype = {
       .setCharacteristic(Characteristic.Name, this.name)
 
     this.informationService = informationService
+    accessoryServices.push(informationService)
 
     const garageService = new Service.GarageDoorOpener(this.name)
     garageService
@@ -117,8 +121,20 @@ GaradgetAccessory.prototype = {
       .on('get', this.obDetected.bind(this))
 
     this.garageService = garageService
+    accessoryServices.push(garageService)
 
-    return [informationService, garageService]
+    if (this.config.lightSensor) {
+      const lightSensorService = new Service.LightSensor(this.name + ' Light Sensor')
+      lightSensorService
+        .getCharacteristic(Characteristic.CurrentAmbientLightLevel)
+        .on('get', this.getLightState.bind(this))
+
+      this.lightSensorService = lightSensorService
+
+      accessoryServices.push(lightSensorService)
+    }
+
+    return accessoryServices //[informationService, garageService]
   },
 
   getCurrentState: function(callback) {
@@ -157,6 +173,10 @@ GaradgetAccessory.prototype = {
 
   obDetected: function(callback) {
     callback(null, 0)
+  },
+
+  getLightState: function(callback) {
+    callback(null, this.lastLightState)
   }
 }
 
@@ -186,4 +206,12 @@ function updateGarageDoorState(message) {
 
   this.garageService
     .setCharacteristic(Characteristic.CurrentDoorState, this.lastGarageState)
+
+  // If Light Sensor is enabled in config
+  if (this.config.lightSensor) {
+    this.lastLightState = message.bright
+
+    this.lightSensorService
+      .setCharacteristic(Characteristic.CurrentAmbientLightLevel, this.lastLightState)
+  }
 }

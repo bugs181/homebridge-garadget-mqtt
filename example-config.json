@@ -11,7 +11,8 @@
           "statusTopic": "garadget/Garadget/status",
           "commandTopic": "garadget/Garadget/command",
 
-          "updateRequest": 5
+          "updateRequest": 5,
+          "lightSensor": true
       }
   ]
 }
