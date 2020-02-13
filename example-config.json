@@ -9,7 +9,9 @@
       {
           "name": "Garadget",
           "statusTopic": "garadget/Garadget/status",
-          "commandTopic": "garadget/Garadget/command"
+          "commandTopic": "garadget/Garadget/command",
+
+          "updateRequest": 5
       }
   ]
 }

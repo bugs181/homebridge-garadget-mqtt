@@ -84,6 +84,12 @@ function GaradgetAccessory(client, log, config) {
 
     this.log('Subscribed to ' + this.name + ' door status channel')
   })
+
+  // Ask for the status every so often, 0 is disabled in config. (Time in config is in minutes)
+  if (config.updateRequest !== 0) {
+    this.updateRequest = config.updateRequest * 1000 * 60
+    setInterval(() => this.client.publish(this.commandTopic, 'get-status'), this.updateRequest)
+  }
 }
 
 GaradgetAccessory.prototype = {
