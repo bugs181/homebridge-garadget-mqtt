@@ -56,6 +56,7 @@ garadgetPlatform.prototype = {
 }
 
 function GaradgetAccessory(client, log, config) {
+  // App variables
   this.client = client
   this.log = log
   this.config = config
@@ -65,10 +66,12 @@ function GaradgetAccessory(client, log, config) {
   this.statusTopic = config.statusTopic
   this.commandTopic = config.commandTopic
 
+  // Set up a default state
   this.lastGarageState = Characteristic.CurrentDoorState.CLOSED
   this.lastTargetState = Characteristic.TargetDoorState.CLOSED
   this.lastLightState = 0
 
+  // MQTT Message receive event (for channels that we're subscribed to)
   client.on('message', (_, data) => {
     try {
       const message = JSON.parse(data)
@@ -79,6 +82,7 @@ function GaradgetAccessory(client, log, config) {
     }
   })
 
+  // Subscribe to the status topic channel
   client.subscribe(this.statusTopic, (err) => {
     if (err)
       return this.log('Error:', err)
@@ -97,6 +101,7 @@ GaradgetAccessory.prototype = {
   getServices: function() {
     const accessoryServices = []
 
+    // Basic Homebridge Accessory Service
     const informationService = new Service.AccessoryInformation()
     informationService
       .setCharacteristic(Characteristic.Manufacturer, 'Garadget')
@@ -106,6 +111,7 @@ GaradgetAccessory.prototype = {
     this.informationService = informationService
     accessoryServices.push(informationService)
 
+    // Garage Door Opener Acessory Service
     const garageService = new Service.GarageDoorOpener(this.name)
     garageService
       .getCharacteristic(Characteristic.CurrentDoorState)
@@ -123,6 +129,7 @@ GaradgetAccessory.prototype = {
     this.garageService = garageService
     accessoryServices.push(garageService)
 
+    // Light Sensor Accessory Service
     if (this.config.lightSensor) {
       const lightSensorService = new Service.LightSensor(this.name + ' Light Sensor')
       lightSensorService
@@ -130,14 +137,14 @@ GaradgetAccessory.prototype = {
         .on('get', this.getLightState.bind(this))
 
       this.lightSensorService = lightSensorService
-
       accessoryServices.push(lightSensorService)
     }
 
-    return accessoryServices //[informationService, garageService]
+    return accessoryServices
   },
 
   getCurrentState: function(callback) {
+    // HomeKit client is asking for the state of the Garadget.
     this.log('Get ' + this.name + ' door status')
     this.client.publish(this.commandTopic, 'get-status')
 
@@ -145,10 +152,12 @@ GaradgetAccessory.prototype = {
   },
 
   getTargetState: function(callback) {
+    // HomeKit client is asking for the state of the Garadget.
     callback(null, this.lastTargetState)
   },
 
   setTargetState: function(state, callback) {
+    // HomeKit client is opening/closing the Garadget
     let newDoorState
     switch (state) {
       case Characteristic.TargetDoorState.OPEN:
@@ -176,11 +185,13 @@ GaradgetAccessory.prototype = {
   },
 
   getLightState: function(callback) {
+    // HomeKit client is asking for the state of the Garadget.
     callback(null, this.lastLightState)
   }
 }
 
 function updateGarageDoorState(message) {
+  // Update HomeKit/Homebridge state with new information.
   const state = message.status
 
   switch (state) {
@@ -204,6 +215,7 @@ function updateGarageDoorState(message) {
       break
   }
 
+  // Update Garage door state
   this.garageService
     .setCharacteristic(Characteristic.CurrentDoorState, this.lastGarageState)
 
@@ -211,6 +223,7 @@ function updateGarageDoorState(message) {
   if (this.config.lightSensor) {
     this.lastLightState = message.bright
 
+    // Update Light Sensor state
     this.lightSensorService
       .setCharacteristic(Characteristic.CurrentAmbientLightLevel, this.lastLightState)
   }
