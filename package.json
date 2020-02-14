@@ -1,6 +1,6 @@
 {
   "name": "homebridge-garadget-mqtt",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Garadget integration for Homebridge, using MQTT",
   "main": "index.js",
   "scripts": {
