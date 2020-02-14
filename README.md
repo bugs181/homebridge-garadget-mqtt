@@ -22,3 +22,15 @@ Garadget integration for Homebridge, using MQTT
   ]
 }
 ```
+
+# Optional Accessory Configuration:
+```
+      {
+          "name": "Garadget",
+          "statusTopic": "garadget/Garadget/status",
+          "commandTopic": "garadget/Garadget/command",
+
+          "updateRequest": 5, // Send a status request to MQTT every $num minutes.
+          "lightSensor": true // Add a Light Sensor Accessory to HomeKit
+      }
+```
